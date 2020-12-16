@@ -1,0 +1,44 @@
+version: '3.7'
+services: 
+  docker-mysql:
+    container_name: docker-mysql
+    image: mysql:5.7
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+    restart: always
+    ports:
+      - 3306:3306
+    networks:
+      - shared-net
+    environment:
+      MYSQL_DATABASE: device_manager
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_PASSWORD: 12345
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=12345 --execute \"SHOW DATABASES;\""
+      interval: 2s
+      timeout: 20s
+      retries: 10
+  weather-app:
+    image: weather-app
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: on-failure
+    expose:
+      - "8080"
+    ports:
+      - 8080:8080
+    networks:
+      - shared-net
+    environment:
+      DATABASE_HOST: docker-mysql
+      DATABASE_USER: root
+      DATABASE_PASSWORD: 12345
+      DATABASE_NAME: device_manager
+      DATABASE_PORT: 3306
+    depends_on:
+      - docker-mysql
+networks:
+  shared-net:
+    driver: bridge
