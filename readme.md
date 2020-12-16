@@ -18,7 +18,10 @@ prerequisites:
 
 in order to run all services run command:
 ```
-##start up all instances
+mvn clean install -DskipTests
+```
+
+```
 docker-compose up -d
 ```
 
